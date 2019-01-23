@@ -47,9 +47,8 @@ export const clientListen = function() {
           const xhr = xhrs.find(item => this.id === item.id);
 
           if (xhr) {
-            xhr.httpResponseCode = this.status;
-            xhr.responseData = this.response;
-            xhr.status = this.status === 200 ? "success" : "error";
+            xhr.status = this.status;
+            xhr.response = this.response;
             xhr.responseHeaders = this.getAllResponseHeaders();
           }
 
@@ -58,6 +57,7 @@ export const clientListen = function() {
       };
       XMLHttpRequest.realOpen.apply(this, arguments);
     };
+
     XMLHttpRequest.prototype.send = function(data) {
       const xhrs = getXhrListen();
       const xhr = xhrs.find(item => this.id === item.id);
@@ -70,6 +70,7 @@ export const clientListen = function() {
 
       XMLHttpRequest.realSend.apply(this, arguments);
     };
+
     XMLHttpRequest.customized = true;
   }
 };
