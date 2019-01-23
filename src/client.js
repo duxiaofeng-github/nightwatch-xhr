@@ -1,27 +1,25 @@
-function getXhrListen() {
-  let xhrListen;
-
-  try {
-    const nightWatchXhrCache =
-      window.localStorage.getItem("nightWatchXhr") || "";
-    xhrListen = JSON.parse(nightWatchXhrCache);
-  } catch (e) {}
-
-  return xhrListen || [];
-}
-
-function setXhrListen(xhrListen) {
-  try {
-    window.localStorage.setItem("nightWatchXhr", JSON.stringify(xhrListen));
-  } catch (e) {}
-}
-
 export const clientListen = function() {
   const rand = () => (Math.random() * 16) | 0;
   const uuidV4 = () =>
     "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c =>
       (c === "x" ? rand() : (rand() & 0x3) | 0x8).toString(16)
     );
+  const getXhrListen = function() {
+    let xhrListen;
+
+    try {
+      const nightWatchXhrCache =
+        window.localStorage.getItem("nightWatchXhr") || "";
+      xhrListen = JSON.parse(nightWatchXhrCache);
+    } catch (e) {}
+
+    return xhrListen || [];
+  };
+  const setXhrListen = function(xhrListen) {
+    try {
+      window.localStorage.setItem("nightWatchXhr", JSON.stringify(xhrListen));
+    } catch (e) {}
+  };
 
   setXhrListen([]);
 
@@ -77,5 +75,17 @@ export const clientListen = function() {
 };
 
 export const clientPoll = function() {
+  const getXhrListen = function() {
+    let xhrListen;
+
+    try {
+      const nightWatchXhrCache =
+        window.localStorage.getItem("nightWatchXhr") || "";
+      xhrListen = JSON.parse(nightWatchXhrCache);
+    } catch (e) {}
+
+    return xhrListen || [];
+  };
+
   return getXhrListen();
 };
