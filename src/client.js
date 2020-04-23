@@ -1,5 +1,4 @@
 export const clientListen = function () {
-    const getXhr = id => window.xhrListen.find(xhr => xhr.id === id);
     const rand = () => Math.random() * 16 | 0;
     const uuidV4 = () =>
         'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
@@ -9,8 +8,25 @@ export const clientListen = function () {
                         : rand() & 0x3 | 0x8
                 ).toString(16)
             ));
+    const getXhrListen = function() {
+        let xhrListen;
+    
+        try {
+            const nightWatchXhrCache =
+            window.localStorage.getItem("nightWatchXhr") || "";
+            xhrListen = JSON.parse(nightWatchXhrCache);
+        } catch (e) {}
+    
+        return xhrListen || [];
+    };
+    const setXhrListen = function(xhrListen) {
+        try {
+            window.localStorage.setItem("nightWatchXhr", JSON.stringify(xhrListen));
+        } catch (e) {}
+    };
+            
 
-    window.xhrListen = [];
+    setXhrListen([]);
 
     if (!XMLHttpRequest.customized) {
         XMLHttpRequest.realSend = XMLHttpRequest.prototype.send;
@@ -18,15 +34,23 @@ export const clientListen = function () {
 
         XMLHttpRequest.prototype.open = function (method, url) {
             this.id = uuidV4();
-            window.xhrListen.push({
+
+            const xhrListen = getXhrListen();
+
+            xhrListen.push({
                 id: this.id,
                 method,
                 url,
-                openedTime: Date.now(),
+                openedTime: Date.now()
             });
+
+            setXhrListen(xhrListen);
+
             this.onloadend = function () {
                 if (this.readyState === XMLHttpRequest.DONE) {
-                    const xhr = getXhr(this.id);
+                    const xhrs = getXhrListen();
+                    const xhr = xhrs.find(item => this.id === item.id);
+
                     if (xhr) {
                         xhr.httpResponseCode = this.status;
                         xhr.responseData = this.response;
@@ -40,14 +64,21 @@ export const clientListen = function () {
                         xhr.status = (this.status === 200 ? 'success' : 'error');
                         xhr.responseHeaders = this.getAllResponseHeaders();
                     }
+
+                    setXhrListen(xhrs);
                 }
             };
             XMLHttpRequest.realOpen.apply(this, arguments);
         };
         XMLHttpRequest.prototype.send = function (data) {
-            const xhr = getXhr(this.id);
-            if (xhr)
+            const xhrs = getXhrListen();
+            const xhr = xhrs.find(item => this.id === item.id);
+
+            if (xhr) {
                 xhr.requestData = data;
+            }
+
+            setXhrListen(xhrs);
 
             XMLHttpRequest.realSend.apply(this, arguments);
         };
@@ -56,5 +87,17 @@ export const clientListen = function () {
 };
 
 export const clientPoll = function () {
-    return window.xhrListen || [];
+    const getXhrListen = function() {
+        let xhrListen;
+    
+        try {
+          const nightWatchXhrCache =
+            window.localStorage.getItem("nightWatchXhr") || "";
+          xhrListen = JSON.parse(nightWatchXhrCache);
+        } catch (e) {}
+    
+        return xhrListen || [];
+    };
+    
+    return getXhrListen();
 };
