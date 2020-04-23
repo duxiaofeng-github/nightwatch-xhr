@@ -57,6 +57,8 @@ export const clientListen = function () {
                         if (this.response instanceof Blob) {
                             this.response.text().then(function (text) {
                                 xhr.responseText = text;
+                                
+                                setXhrListen(xhrs);
                             });
                         } else if (typeof this.responseText === "string") {
                             xhr.responseText = this.responseText;
