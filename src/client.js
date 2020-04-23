@@ -30,6 +30,13 @@ export const clientListen = function () {
                     if (xhr) {
                         xhr.httpResponseCode = this.status;
                         xhr.responseData = this.response;
+                        if (this.response instanceof Blob) {
+                            this.response.text().then(function (text) {
+                                xhr.responseText = text;
+                            });
+                        } else if (typeof this.responseText === "string") {
+                            xhr.responseText = this.responseText;
+                        }
                         xhr.status = (this.status === 200 ? 'success' : 'error');
                         xhr.responseHeaders = this.getAllResponseHeaders();
                     }
